@@ -8,8 +8,27 @@ Why
 
 Shell globs don't apply to Kubernetes resource names. This plugin lets you use simple wildcard patterns like `*` and `?` to match resource names, then delegates to `kubectl` for output and actions.
 
-Install (local)
----------------
+Install (via Krew)
+------------------
+
+Prereqs:
+
+- `kubectl krew` is installed. See `https://krew.sigs.k8s.io/docs/user-guide/setup/install/`.
+- Ensure Krew is on PATH (add this to your shell profile):
+
+```bash
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+```
+
+Install the plugin (once it’s published to the index):
+
+```bash
+kubectl krew install wild
+kubectl wild --help
+```
+
+Install (local/dev)
+-------------------
 
 Build:
 
@@ -17,7 +36,7 @@ Build:
 GO111MODULE=on go build -o ./kubectl-wild .
 ```
 
-Put the binary on your PATH (so `kubectl` can discover it):
+Put the binary on your PATH (so `kubectl` discovers `kubectl-wild` as `kubectl wild`):
 
 ```bash
 mv ./kubectl-wild /usr/local/bin/
@@ -69,6 +88,11 @@ Notes
 - Place flags after the pattern; flags before the pattern are not currently parsed.
 - The plugin shells out to `kubectl` and therefore respects your current context, kubeconfig, RBAC, etc.
 - Logs are intentionally not supported; prefer `stern` for logs use-cases.
+
+Disclaimer
+----------
+
+Use at your own risk. This tool expands patterns and then shells out to `kubectl` to perform actions. Always review the matched resource list before destructive operations. The `delete` verb will prompt for confirmation by default; use `--dry-run` to preview and `-y/--yes` to skip the prompt when you’re certain.
 
 Krew packaging (template)
 -------------------------
