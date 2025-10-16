@@ -83,6 +83,16 @@ func TestParseArgs_Defaults(t *testing.T) {
 	}
 }
 
+func TestPrefixRemovesDefaultInclude(t *testing.T) {
+	opts, err := parseArgs([]string{"get", "pods", "-p", "ngin"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(opts.Include) != 1 || opts.Include[0] != "ngin*" {
+		t.Fatalf("expected only ngin*, got %+v", opts.Include)
+	}
+}
+
 func TestMatcher_Glob_IncludeExclude(t *testing.T) {
 	m := Matcher{Mode: MatchGlob, Includes: []string{"a*", "*b"}, Excludes: []string{"ab?"}}
 	if !m.Matches("ax") {

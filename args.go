@@ -124,6 +124,20 @@ func parseArgs(argv []string) (CLIOptions, error) {
 		case "--contains":
 			opts.Mode = MatchContains
 			continue
+		case "--prefix":
+			if i+1 >= len(flags) {
+				return opts, fmt.Errorf("--prefix requires a value")
+			}
+			opts.Include = append(opts.Include, flags[i+1]+"*")
+			i++
+			continue
+		case "-p":
+			if i+1 >= len(flags) {
+				return opts, fmt.Errorf("-p requires a value")
+			}
+			opts.Include = append(opts.Include, flags[i+1]+"*")
+			i++
+			continue
 		case "--ignore-case":
 			opts.IgnoreCase = true
 			continue
@@ -184,12 +198,23 @@ func parseArgs(argv []string) (CLIOptions, error) {
 	if includeWasDefault {
 		switch opts.Mode {
 		case MatchGlob:
-			opts.Include = []string{"*"}
+			if len(opts.Include) == 0 {
+				opts.Include = []string{"*"}
+			}
 		case MatchRegex:
-			opts.Include = []string{".*"}
+			if len(opts.Include) == 0 {
+				opts.Include = []string{".*"}
+			}
 		case MatchContains:
-			opts.Include = []string{""}
+			if len(opts.Include) == 0 {
+				opts.Include = []string{""}
+			}
 		}
+	}
+	// If we had inserted a default include and user also provided an explicit include (e.g., -p/--prefix/--match), drop the default
+	if includeWasDefault && len(opts.Include) > 1 {
+		// Remove the first entry which is the default
+		opts.Include = opts.Include[1:]
 	}
 	opts.ExtraFinal = append(opts.ExtraFinal, tail...)
 	return opts, nil

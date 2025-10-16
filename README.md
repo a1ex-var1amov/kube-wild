@@ -42,6 +42,8 @@ kubectl wild get
 kubectl wild get pods 'a*' -n default
 kubectl wild describe pods --regex '^(api|web)-' -A
 kubectl wild delete pods 'te*' -n default
+kubectl wild get pods --prefix foo -n default   # equivalent to 'foo*'
+kubectl wild get pods -p foo -n default        # short for --prefix
 ```
 
 - Flags after the pattern are passed through to `kubectl` (e.g., `-n`, `-A`, `-l`).

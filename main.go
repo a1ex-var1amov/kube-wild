@@ -17,6 +17,8 @@ func printUsage() {
 	fmt.Fprintf(os.Stderr, "  kubectl wild get pods 'a*' -n default\n")
 	fmt.Fprintf(os.Stderr, "  kubectl wild delete pods 'te*' -n default -y\n")
 	fmt.Fprintf(os.Stderr, "  kubectl wild describe pods --regex '^(api|web)-' -A\n")
+	fmt.Fprintf(os.Stderr, "  kubectl wild get pods --prefix foo -n default   # same as 'foo*'\n")
+	fmt.Fprintf(os.Stderr, "  kubectl wild get pods -p foo -n default        # short for --prefix\n")
 	// logs intentionally not supported; prefer stern
 }
 
