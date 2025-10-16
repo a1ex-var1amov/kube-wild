@@ -12,12 +12,12 @@ type matchedRef struct{ ns, name string }
 
 func printUsage() {
 	fmt.Fprintf(os.Stderr, "Usage:\n")
-	fmt.Fprintf(os.Stderr, "  kubectl wild (get|delete|describe|logs) <resource> <pattern> [flags...] [-- extra]\n\n")
+	fmt.Fprintf(os.Stderr, "  kubectl wild (get|delete|describe) <resource> <pattern> [flags...] [-- extra]\n\n")
 	fmt.Fprintf(os.Stderr, "Examples:\n")
 	fmt.Fprintf(os.Stderr, "  kubectl wild get pods 'a*' -n default\n")
 	fmt.Fprintf(os.Stderr, "  kubectl wild delete pods 'te*' -n default -y\n")
 	fmt.Fprintf(os.Stderr, "  kubectl wild describe pods --regex '^(api|web)-' -A\n")
-	fmt.Fprintf(os.Stderr, "  kubectl wild logs pods --contains 'api-' -n prod -- -c app\n")
+	// logs intentionally not supported; prefer stern
 }
 
 func main() {
@@ -69,9 +69,6 @@ func runCommand(runner Runner, opts CLIOptions) error {
 		return runVerbPerScope(runner, "get", opts, matched)
 	case VerbDescribe:
 		return runVerbPerScope(runner, "describe", opts, matched)
-	case VerbLogs:
-		// logs is pod-only; resource should be pods
-		return runVerbPerScope(runner, "logs", opts, matched)
 	case VerbDelete:
 		if !opts.Yes && !opts.DryRun {
 			// Build preview listing as ns/name when in -A mode for clarity
@@ -228,6 +225,18 @@ func runBatched(runner Runner, verb string, resource string, targets []string, f
 			j = len(targets)
 		}
 		batch := targets[i:j]
+		// Special-case logs: kubectl logs expects a single pod per invocation
+		if verb == "logs" {
+			for _, name := range batch {
+				args := []string{verb, name}
+				args = append(args, finalFlags...)
+				args = append(args, extra...)
+				if err := runner.RunKubectl(args); err != nil {
+					return err
+				}
+			}
+			continue
+		}
 		args := []string{verb, resource}
 		args = append(args, batch...)
 		// For 'get' only, suppress headers on subsequent batches so output looks like one table

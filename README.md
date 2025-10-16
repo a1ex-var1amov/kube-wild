@@ -1,7 +1,7 @@
 kubectl-wild
 ============
 
-Wildcard-friendly wrapper for common kubectl commands (get, delete). Installed as a kubectl plugin `kubectl-wild` and invoked as `kubectl wild ...`.
+Wildcard-friendly wrapper for common kubectl commands (get, describe, delete). Installed as a kubectl plugin `kubectl-wild` and invoked as `kubectl wild ...`.
 
 Why
 ---
@@ -35,12 +35,18 @@ Usage
 Always quote your patterns to prevent your shell from expanding them:
 
 ```bash
+# Defaults: resource pods, pattern * in current namespace
+kubectl wild get
+
+# Wildcards
 kubectl wild get pods 'a*' -n default
+kubectl wild describe pods --regex '^(api|web)-' -A
 kubectl wild delete pods 'te*' -n default
 ```
 
 - Flags after the pattern are passed through to `kubectl` (e.g., `-n`, `-A`, `-l`).
-- For `get`, the plugin resolves names then runs `kubectl get <resource> <names...>` so you get native output/columns.
+- For `get`, output is rendered as a single kubectl table even across namespaces.
+- For `describe`, the plugin runs `kubectl describe` on the matched set.
 - For `delete`, the plugin shows matches and always asks for confirmation (`y/N`).
 
 Examples
@@ -60,6 +66,7 @@ Notes
 - Supported wildcards: `*` (any sequence), `?` (single char). Matching is case-sensitive.
 - Place flags after the pattern; flags before the pattern are not currently parsed.
 - The plugin shells out to `kubectl` and therefore respects your current context, kubeconfig, RBAC, etc.
+- Logs are intentionally not supported; prefer `stern` for logs use-cases.
 
 Krew packaging (template)
 -------------------------

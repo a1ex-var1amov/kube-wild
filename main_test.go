@@ -227,3 +227,5 @@ func TestAllNamespaces_TargetsNsName(t *testing.T) {
 		t.Fatalf("expected per-namespace calls; calls=%v", fr.calls)
 	}
 }
+
+// logs intentionally unsupported

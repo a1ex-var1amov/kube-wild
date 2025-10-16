@@ -12,7 +12,6 @@ const (
 	VerbGet      Verb = "get"
 	VerbDelete   Verb = "delete"
 	VerbDescribe Verb = "describe"
-	VerbLogs     Verb = "logs"
 )
 
 type MatchMode int
@@ -66,7 +65,7 @@ func parseArgs(argv []string) (CLIOptions, error) {
 	opts := defaultCLIOptions()
 	opts.Verb = Verb(argv[0])
 	switch opts.Verb {
-	case VerbGet, VerbDelete, VerbDescribe, VerbLogs:
+	case VerbGet, VerbDelete, VerbDescribe:
 	default:
 		return opts, fmt.Errorf("unknown verb: %s", argv[0])
 	}
